@@ -92,6 +92,9 @@ def main():
     # Title
     ax.set_title("Tabella dei valori di rDelta", fontsize=14, pad=20)
 
+    # Save the plot
+    plt.savefig("tabella_rDelta.png", dpi=300, bbox_inches="tight")
+
     # Show the plot
     plt.show()
 
