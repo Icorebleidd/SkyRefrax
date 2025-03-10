@@ -28,6 +28,9 @@ The program requests the following inputs from the user:
 * packaging==24.2
 * pillow==11.1.0
 * pyparsing==3.2.1
+* PyQt5==5.15.11
+* PyQt5-Qt5==5.15.2
+* PyQt5_sip==12.17.0
 * python-dateutil==2.9.0.post0
 * six==1.17.0
 
