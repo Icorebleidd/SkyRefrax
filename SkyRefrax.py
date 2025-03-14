@@ -3,15 +3,15 @@ import sys
 import math
 import matplotlib.pyplot as plt
 
-def calcola_n_lambda(lambda_angstrom, pressione, temperatura, vapore_acqueo):
+def calculate_n_lambda(wavelength, pressure, temperature, water_vapor):
     K1, K2, K3 = 64.328, 29498.1, 255.4
-    primo_termine = K1 + (K2 / (146 - (1 / lambda_angstrom) ** 2)) + (K3 / (41 - (1 / lambda_angstrom) ** 2))
-    secondo_termine = primo_termine * (pressione * (1 + (1.049 - 0.0157 * temperatura) * 1e-6 * pressione) / (720.883 * (1 + 0.003661 * temperatura)))
-    terzo_termine = secondo_termine - (0.0624 - (0.000680 / lambda_angstrom) / (1 + 0.003661 * temperatura)) * vapore_acqueo
-    return terzo_termine / (1e+6) + 1
+    term1 = K1 + (K2 / (146 - (1 / wavelength) ** 2)) + (K3 / (41 - (1 / wavelength) ** 2))
+    term2 = term1 * (pressure * (1 + (1.049 - 0.0157 * temperature) * 1e-6 * pressure) / (720.883 * (1 + 0.003661 * temperature)))
+    term3 = term2 - (0.0624 - (0.000680 / wavelength) / (1 + 0.003661 * temperature)) * water_vapor
+    return term3 / 1e6 + 1
 
-def calcola_delta_r(n_lambda, n_5000, angolo_rad):
-    return 206265 * (n_lambda - n_5000) * math.tan(angolo_rad)
+def calculate_delta_r(n_lambda, n_5000, angle_rad):
+    return 206265 * (n_lambda - n_5000) * math.tan(angle_rad)
 
 def parse_angle(angle_str):
     try:
@@ -20,43 +20,43 @@ def parse_angle(angle_str):
     except:
         return None
 
-class MainWindow(QtWidgets.QWidget):
+class RefractionCalculator(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
     
     def init_ui(self):
-        self.setWindowTitle("rDelta Calculator")
+        self.setWindowTitle("Refraction Delta Calculator")
         self.setGeometry(100, 100, 600, 400)
         
         layout = QtWidgets.QVBoxLayout()
         
-        self.lambda_input = QtWidgets.QLineEdit()
-        self.lambda_input.setPlaceholderText("Wave Lengths")
-        layout.addWidget(self.lambda_input)
+        self.wavelength_input = QtWidgets.QLineEdit()
+        self.wavelength_input.setPlaceholderText("Wavelengths (Å), comma-separated")
+        layout.addWidget(self.wavelength_input)
         
-        self.angoli_input = QtWidgets.QLineEdit()
-        self.angoli_input.setPlaceholderText("Zenith Angles")
-        layout.addWidget(self.angoli_input)
+        self.angles_input = QtWidgets.QLineEdit()
+        self.angles_input.setPlaceholderText("Zenith Angles (deg, min, sec), comma-separated")
+        layout.addWidget(self.angles_input)
         
-        self.pressione_input = QtWidgets.QLineEdit()
-        self.pressione_input.setPlaceholderText("Pressure (mmHg)")
-        layout.addWidget(self.pressione_input)
+        self.pressure_input = QtWidgets.QLineEdit()
+        self.pressure_input.setPlaceholderText("Pressure (mmHg)")
+        layout.addWidget(self.pressure_input)
         
-        self.temperatura_input = QtWidgets.QLineEdit()
-        self.temperatura_input.setPlaceholderText("Temperature (°C)")
-        layout.addWidget(self.temperatura_input)
+        self.temperature_input = QtWidgets.QLineEdit()
+        self.temperature_input.setPlaceholderText("Temperature (°C)")
+        layout.addWidget(self.temperature_input)
         
-        self.vapore_input = QtWidgets.QLineEdit()
-        self.vapore_input.setPlaceholderText("Water Vapor (mmHg)")
-        layout.addWidget(self.vapore_input)
+        self.water_vapor_input = QtWidgets.QLineEdit()
+        self.water_vapor_input.setPlaceholderText("Water Vapor (mmHg)")
+        layout.addWidget(self.water_vapor_input)
         
-        self.calc_button = QtWidgets.QPushButton("Calculate")
-        self.calc_button.clicked.connect(self.calcola)
-        layout.addWidget(self.calc_button)
+        self.calculate_button = QtWidgets.QPushButton("Calculate")
+        self.calculate_button.clicked.connect(self.calculate)
+        layout.addWidget(self.calculate_button)
         
         self.export_button = QtWidgets.QPushButton("Export Table")
-        self.export_button.clicked.connect(self.esporta_tabella)
+        self.export_button.clicked.connect(self.export_table)
         layout.addWidget(self.export_button)
         
         self.table = QtWidgets.QTableWidget()
@@ -64,47 +64,47 @@ class MainWindow(QtWidgets.QWidget):
         
         self.setLayout(layout)
     
-    def calcola(self):
+    def calculate(self):
         try:
-            self.lambda_list = list(map(float, self.lambda_input.text().split(',')))
-            self.angoli_list = list(map(parse_angle, self.angoli_input.text().split(',')))
-            pressione = float(self.pressione_input.text())
-            temperatura = float(self.temperatura_input.text())
-            vapore_acqueo = float(self.vapore_input.text())
+            self.wavelengths = list(map(float, self.wavelength_input.text().split(',')))
+            self.angles = list(map(parse_angle, self.angles_input.text().split(',')))
+            pressure = float(self.pressure_input.text())
+            temperature = float(self.temperature_input.text())
+            water_vapor = float(self.water_vapor_input.text())
             
-            if None in self.angoli_list:
-                QtWidgets.QMessageBox.critical(self, "Error", "Format of angles not valid!")
+            if None in self.angles:
+                QtWidgets.QMessageBox.critical(self, "Error", "Invalid angle format!")
                 return
             
-            r_5000 = calcola_n_lambda(5000 * 1e-4, pressione, temperatura, vapore_acqueo)
-            self.n_lambda = [calcola_n_lambda(l * 1e-4, pressione, temperatura, vapore_acqueo) for l in self.lambda_list]
+            n_5000 = calculate_n_lambda(5000 * 1e-4, pressure, temperature, water_vapor)
+            self.n_lambda = [calculate_n_lambda(wl * 1e-4, pressure, temperature, water_vapor) for wl in self.wavelengths]
             
-            self.rDelta_matrix = [[calcola_delta_r(nl, r_5000, ang) for ang in self.angoli_list] for nl in self.n_lambda]
+            self.refraction_deltas = [[calculate_delta_r(nl, n_5000, ang) for ang in self.angles] for nl in self.n_lambda]
             
-            self.table.setRowCount(len(self.lambda_list))
-            self.table.setColumnCount(len(self.angoli_list))
-            self.table.setHorizontalHeaderLabels([f"{round(1/(math.cos(a)), 2)}" for a in self.angoli_list])
-            self.table.setVerticalHeaderLabels([f"{l} Å" for l in self.lambda_list])
+            self.table.setRowCount(len(self.wavelengths))
+            self.table.setColumnCount(len(self.angles))
+            self.table.setHorizontalHeaderLabels([f"{round(1/(math.cos(a)), 2)}" for a in self.angles])
+            self.table.setVerticalHeaderLabels([f"{wl} Å" for wl in self.wavelengths])
             
-            for i, row in enumerate(self.rDelta_matrix):
+            for i, row in enumerate(self.refraction_deltas):
                 for j, value in enumerate(row):
                     self.table.setItem(i, j, QtWidgets.QTableWidgetItem(f"{round(value, 2)}"))
         
         except Exception as e:
             QtWidgets.QMessageBox.critical(self, "Error", f"An error occurred: {e}")
     
-    def esporta_tabella(self):
+    def export_table(self):
         try:
-            if not hasattr(self, 'rDelta_matrix'):
+            if not hasattr(self, 'refraction_deltas'):
                 QtWidgets.QMessageBox.critical(self, "Error", "No data available. Calculate first!")
                 return
             
             fig, ax = plt.subplots(figsize=(10, 6))
             ax.axis('tight')
             ax.axis('off')
-            table_data = [[round(value, 2) for value in row] for row in self.rDelta_matrix]
-            col_labels = [f"{round(1/(math.cos(a)), 2)}" for a in self.angoli_list]
-            row_labels = [f"{l} Å" for l in self.lambda_list]
+            table_data = [[round(value, 2) for value in row] for row in self.refraction_deltas]
+            col_labels = [f"{round(1/(math.cos(a)), 2)}" for a in self.angles]
+            row_labels = [f"{wl} Å" for wl in self.wavelengths]
             
             table = ax.table(cellText=table_data, colLabels=col_labels, rowLabels=row_labels, cellLoc='center', loc='center')
             table.auto_set_font_size(False)
@@ -124,6 +124,6 @@ class MainWindow(QtWidgets.QWidget):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
+    window = RefractionCalculator()
     window.show()
     sys.exit(app.exec_())
