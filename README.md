@@ -1,39 +1,52 @@
-# SkyRefrax 1.0
+# SkyRefrax
 
-This program calculates the angular refraction differences (rΔrΔ​) for different wavelengths of light at specific zenith angles, accounting for atmospheric conditions.
+A PyQt5 application to calculate the refraction delta based on wavelength, zenith angle, pressure, temperature, and water vapor content.
 
-## Description
+## Features
+- Input multiple wavelengths and zenith angles.
+- Compute refraction delta for given atmospheric conditions.
+- Display results in a table format.
+- Export table as a PNG or PDF.
 
-Atmospheric Refraction Calculator.
+## Requirements
+- Python 3.8+
+- PyQt5
+- Matplotlib
 
-The program requests the following inputs from the user:
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Icorebleidd/SkyRefrax.git
+   cd SkyRefrax
+   ```
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-    Wavelengths (λλ) in angstroms, separated by commas (e.g., 5000,6000,7000).
-    Zenith angles in degrees, minutes, and seconds (e.g., 55°46'19",77°20'45").
-    Atmospheric conditions:
-        Atmospheric pressure (PP) in mmHg.
-        Temperature (TT) in °C.
-        Water vapor pressure (ee) in mmHg.
+## Usage
+Run the application with:
+```bash
+python SkyRefrax.py
+```
 
-## Getting Started
+## Inputs
+- **Wavelengths (Å):** Comma-separated values (e.g., `4000, 5000, 6000`).
+- **Zenith Angles:** Format `deg min sec` (e.g., `45 30 0, 60 15 30`).
+- **Pressure (mmHg)**
+- **Temperature (°C)**
+- **Water Vapor (mmHg)**
 
-### Dependencies
+## Output
+- A table displaying the computed refraction delta values.
+- Column headers: Secant of zenith angles.
+- Row headers: Wavelengths in Å.
 
-* contourpy==1.3.1
-* cycler==0.12.1
-* fonttools==4.55.3
-* kiwisolver==1.4.8
-* matplotlib==3.10.0
-* numpy==2.2.1
-* packaging==24.2
-* pillow==11.1.0
-* pyparsing==3.2.1
-* PyQt5==5.15.11
-* PyQt5-Qt5==5.15.2
-* PyQt5_sip==12.17.0
-* python-dateutil==2.9.0.post0
-* six==1.17.0
+## Exporting Data
+You can save the table as a PNG or PDF file via the "Export Table" button.
 
-### Installing
+## License
+This project is licensed under the MIT License.
 
-* pip install -r requirements.txt
+## Author
+Leonardo Tozzo - [GitHub Profile](https://github.com/Icorebleidd)
