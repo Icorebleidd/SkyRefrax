@@ -76,15 +76,15 @@ class RefractionCalculator(QtWidgets.QWidget):
                 QtWidgets.QMessageBox.critical(self, "Error", "Invalid angle format!")
                 return
             
-            n_5000 = calculate_n_lambda(5000 * 1e-4, pressure, temperature, water_vapor)
+            n_5000 = calculate_n_lambda(5500 * 1e-4, pressure, temperature, water_vapor)
             self.n_lambda = [calculate_n_lambda(wl * 1e-4, pressure, temperature, water_vapor) for wl in self.wavelengths]
             
-            self.refraction_deltas = [[calculate_delta_r(nl, n_5000, ang) for ang in self.angles] for nl in self.n_lambda]
+            self.refraction_deltas = [[calculate_delta_r(nl, n_5000, ang) for nl in self.n_lambda] for ang in self.angles]
             
-            self.table.setRowCount(len(self.wavelengths))
-            self.table.setColumnCount(len(self.angles))
-            self.table.setHorizontalHeaderLabels([f"{round(1/(math.cos(a)), 2)}" for a in self.angles])
-            self.table.setVerticalHeaderLabels([f"{wl} Å" for wl in self.wavelengths])
+            self.table.setRowCount(len(self.angles))
+            self.table.setColumnCount(len(self.wavelengths))
+            self.table.setHorizontalHeaderLabels([f"{wl} Å" for wl in self.wavelengths])
+            self.table.setVerticalHeaderLabels([f"{round(1/(math.cos(a)), 2)} ({math.degrees(a):.2f}°)" for a in self.angles])
             
             for i, row in enumerate(self.refraction_deltas):
                 for j, value in enumerate(row):
@@ -99,23 +99,24 @@ class RefractionCalculator(QtWidgets.QWidget):
                 QtWidgets.QMessageBox.critical(self, "Error", "No data available. Calculate first!")
                 return
             
-            fig, ax = plt.subplots(figsize=(10, 6))
+            fig, ax = plt.subplots(figsize=(len(self.wavelengths) * 0.8, len(self.angles) * 0.5))
             ax.axis('tight')
             ax.axis('off')
+            
             table_data = [[round(value, 2) for value in row] for row in self.refraction_deltas]
-            col_labels = [f"{round(1/(math.cos(a)), 2)}" for a in self.angles]
-            row_labels = [f"{wl} Å" for wl in self.wavelengths]
+            col_labels = [f"{wl} Å" for wl in self.wavelengths]
+            row_labels = [f"{round(1/(math.cos(a)), 2)} ({math.degrees(a):.2f}°)" for a in self.angles]
             
             table = ax.table(cellText=table_data, colLabels=col_labels, rowLabels=row_labels, cellLoc='center', loc='center')
             table.auto_set_font_size(False)
-            table.set_fontsize(10)
-            table.scale(1.2, 1.2)
+            table.set_fontsize(8)
+            table.scale(1.5, 1.5)
             
             options = QtWidgets.QFileDialog.Options()
             file_path, _ = QtWidgets.QFileDialog.getSaveFileName(self, "Save Table", "", "PNG Files (*.png);;PDF Files (*.pdf)", options=options)
             
             if file_path:
-                plt.savefig(file_path, bbox_inches='tight')
+                plt.savefig(file_path, bbox_inches='tight', dpi=300)
                 QtWidgets.QMessageBox.information(self, "Success", f"Table saved to {file_path}")
             plt.close()
         
