@@ -3,11 +3,18 @@ import sys
 import math
 import matplotlib.pyplot as plt
 
-def calculate_n_lambda(wavelength, pressure, temperature, water_vapor):
+def antoine_equation(temperature):
+    A, B, C = 8.07131, 1730.63, 233.426  # Antoine coefficients for water (valid for 1-100°C)
+    return 10 ** (A - (B / (C + temperature)))  # Pressure in mmHg
+
+def calculate_n_lambda(wavelength, pressure, temperature, humidity):
+    water_vapor_pressure = antoine_equation(temperature)
+    f = (humidity / 100) * water_vapor_pressure  # Effective vapor pressure
+    
     K1, K2, K3 = 64.328, 29498.1, 255.4
     term1 = K1 + (K2 / (146 - (1 / wavelength) ** 2)) + (K3 / (41 - (1 / wavelength) ** 2))
     term2 = term1 * (pressure * (1 + (1.049 - 0.0157 * temperature) * 1e-6 * pressure) / (720.883 * (1 + 0.003661 * temperature)))
-    term3 = term2 - (0.0624 - (0.000680 / wavelength) / (1 + 0.003661 * temperature)) * water_vapor
+    term3 = term2 - (0.0624 - (0.000680 / wavelength) / (1 + 0.003661 * temperature)) * f
     return term3 / 1e6 + 1
 
 def calculate_delta_r(n_lambda, n_5000, angle_rad):
@@ -47,9 +54,9 @@ class RefractionCalculator(QtWidgets.QWidget):
         self.temperature_input.setPlaceholderText("Temperature (°C)")
         layout.addWidget(self.temperature_input)
         
-        self.water_vapor_input = QtWidgets.QLineEdit()
-        self.water_vapor_input.setPlaceholderText("Water Vapor (mmHg)")
-        layout.addWidget(self.water_vapor_input)
+        self.humidity_input = QtWidgets.QLineEdit()
+        self.humidity_input.setPlaceholderText("Relative Humidity (%)")
+        layout.addWidget(self.humidity_input)
         
         self.calculate_button = QtWidgets.QPushButton("Calculate")
         self.calculate_button.clicked.connect(self.calculate)
@@ -70,14 +77,14 @@ class RefractionCalculator(QtWidgets.QWidget):
             self.angles = list(map(parse_angle, self.angles_input.text().split(',')))
             pressure = float(self.pressure_input.text())
             temperature = float(self.temperature_input.text())
-            water_vapor = float(self.water_vapor_input.text())
+            humidity = float(self.humidity_input.text())
             
             if None in self.angles:
                 QtWidgets.QMessageBox.critical(self, "Error", "Invalid angle format!")
                 return
             
-            n_5000 = calculate_n_lambda(5500 * 1e-4, pressure, temperature, water_vapor)
-            self.n_lambda = [calculate_n_lambda(wl * 1e-4, pressure, temperature, water_vapor) for wl in self.wavelengths]
+            n_5000 = calculate_n_lambda(5500 * 1e-4, pressure, temperature, humidity)
+            self.n_lambda = [calculate_n_lambda(wl * 1e-4, pressure, temperature, humidity) for wl in self.wavelengths]
             
             self.refraction_deltas = [[calculate_delta_r(nl, n_5000, ang) for nl in self.n_lambda] for ang in self.angles]
             
