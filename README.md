@@ -1,5 +1,10 @@
 # SkyRefrax
 
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![PyQt5](https://img.shields.io/badge/PyQt5-%20v5.15.11-green.svg)](https://pypi.org/project/PyQt5/)
+[![Matplotlib](https://img.shields.io/badge/Matplotlib-%20v3.10.0-orange.svg)](https://matplotlib.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A PyQt5 application to calculate the refraction delta based on wavelength, zenith angle, pressure, temperature, and water vapor content.
 
 ## Features
