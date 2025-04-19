@@ -33,7 +33,7 @@ class RefractionCalculator(QtWidgets.QWidget):
         self.init_ui()
     
     def init_ui(self):
-        self.setWindowTitle("Refraction Delta Calculator")
+        self.setWindowTitle("SkyRefrax")
         self.setGeometry(100, 100, 600, 400)
         
         layout = QtWidgets.QVBoxLayout()
@@ -107,6 +107,7 @@ class RefractionCalculator(QtWidgets.QWidget):
                 return
             
             fig, ax = plt.subplots(figsize=(len(self.wavelengths) * 0.8, len(self.angles) * 0.5))
+            fig.suptitle("SkyRefrax", fontsize=12, fontweight='bold', y=0.95)
             ax.axis('tight')
             ax.axis('off')
             
