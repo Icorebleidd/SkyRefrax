@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 import sys
 import math
 import matplotlib.pyplot as plt
@@ -140,6 +140,8 @@ class RefractionCalculator(QtWidgets.QWidget):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
+    app.setWindowIcon(QtGui.QIcon("SkyRefrax_Icon.png"))
     window = RefractionCalculator()
     window.show()
     sys.exit(app.exec_())
+
